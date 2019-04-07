@@ -1,5 +1,5 @@
 # files to ignore
 __init__.py
-*.ipynb
+.ipynb_checkpoints
 *.pyc
 
