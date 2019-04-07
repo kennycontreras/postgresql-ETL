@@ -1,4 +1,5 @@
 # files to ignore
 __init__.py
 *.ipynb
-
+*.pyc
+create_tables.py
