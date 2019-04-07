@@ -1,0 +1,4 @@
+# files to ignore
+__init__.py
+*.ipynb
+
