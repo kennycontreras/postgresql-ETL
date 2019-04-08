@@ -6,19 +6,26 @@ import numpy as np
 from sql_queries import *
 
 
+# cur parameter: actual connection to DATABASE
+# filepath parameter: JSON file path
+# this function receive a connection and json path parameters.
+# read the information using pandas and insert into database.
 def process_song_file(cur, filepath):
     # open song file
     df = pd.read_json(filepath, lines=True)
 
     # insert song record
     song_data = df[['song_id', 'title', 'artist_id', 'year',
-                    'duration']].iloc[0].tolist()
+                    'duration']].values[0].tolist()
     cur.execute(song_table_insert, song_data)
 
     # insert artist record
     artist_data = df[['artist_id', 'artist_name', 'artist_location',
-                      'artist_latitude', 'artist_longitude']].iloc[0].tolist()
+                      'artist_latitude', 'artist_longitude']].values[0].tolist()
     cur.execute(artist_table_insert, artist_data)
+
+# this function receive a connection and json path parameters.
+# read the information using pandas and insert into database.
 
 
 def process_log_file(cur, filepath):
@@ -37,6 +44,7 @@ def process_log_file(cur, filepath):
     column_labels = ('ts', 'hour', 'day', 'week', 'month', 'year', 'weekday')
     time_df = pd.DataFrame(data=time_data, columns=column_labels)
 
+    # iterate into every row and create a insert statement for every row
     for i, row in time_df.iterrows():
         cur.execute(time_table_insert, list(row))
 
@@ -52,13 +60,18 @@ def process_log_file(cur, filepath):
         # get songid and artistid from song and artist tables
         cur.execute(song_select, (row.song.encode('utf-8'),
                                   row.artist.encode('utf-8'), row.length))
+
+        # retrieve the information by tuples
         results = cur.fetchone()
+        # asing song_id and artist_id into variables
         songid, artistid = results if results else (None, None)
 
         # insert songplay record
         songplay_data = (row.ts, row.userId, row.level, songid, artistid,
                          row.sessionId, row.location, row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
+
+# iterate into every directory and retrieve json files to process data
 
 
 def process_data(cur, conn, filepath, func):
